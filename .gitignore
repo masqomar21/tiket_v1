@@ -42,4 +42,10 @@ next-env.d.ts
 # pnpm
 .pnpm
 
+# yarn
+.yarn
+
+#swc
+.swc
+
 
