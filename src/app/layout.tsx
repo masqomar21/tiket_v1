@@ -3,6 +3,7 @@ import './globals.css'
 import { Poppins } from 'next/font/google'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
+import Providers from '@/store/provider'
 
 const poppins = Poppins({
   subsets: ['latin'], weight: ['400', '500', '600', '700', '800']
@@ -22,7 +23,9 @@ export default function RootLayout ({
 }>) {
   return (
       <html lang="en">
-          <body className={poppins.className}>{children}</body>
+          <Providers>
+              <body className={poppins.className}>{children}</body>
+          </Providers>
       </html>
   )
 }

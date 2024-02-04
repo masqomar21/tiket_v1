@@ -4,13 +4,33 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export default function FooterClient () {
-  const socialMedia = {
-    facebook: 'https://facebook.com',
-    Twitter: 'https://twitter.com',
-    Instagram: 'https://instagram.com',
-    LinkedIn: 'https://linkedin.com',
-    Youtube: 'https://youtube.com'
-  }
+  const socialMedia = [
+    {
+      name: 'facebook',
+      icon: <FontAwesomeIcon icon={faSquareFacebook} />,
+      link: 'https://facebook.com'
+    },
+    {
+      name: 'Twitter',
+      icon: <FontAwesomeIcon icon={faSquareXTwitter} />,
+      link: 'https://twitter.com'
+    },
+    {
+      name: 'Instagram',
+      icon: <FontAwesomeIcon icon={faSquareInstagram} />,
+      link: 'https://instagram.com'
+    },
+    {
+      name: 'LinkedIn',
+      icon: <FontAwesomeIcon icon={faLinkedin} />,
+      link: 'https://linkedin.com'
+    },
+    {
+      name: 'Youtube',
+      icon: <FontAwesomeIcon icon={faYoutube} />,
+      link: 'https://youtube.com'
+    }
+  ]
   const logo = '/Statick/image/logo_tiket_papa.png'
   return (
       <>
@@ -81,7 +101,14 @@ export default function FooterClient () {
                       <span>Copyright © 2024 TIKETPAPA | All Rights Reserved </span>
                   </div>
                   <div className="flex gap-10 justify-center md:justify-end text-main-color text-2xl">
-                      <a target='_blank' rel="noopener noreferrer" href={socialMedia.facebook}>
+                      {socialMedia.map((item, index) => {
+                        return (
+                            <a key={index} target='_blank' rel="noopener noreferrer" href={item.link}>
+                                {item.icon}
+                            </a>
+                        )
+                      })}
+                      {/* <a target='_blank' rel="noopener noreferrer" href={socialMedia.facebook}>
                           <FontAwesomeIcon icon={faSquareFacebook}/>
                       </a>
                       <a target='_blank' rel="noopener noreferrer" href={socialMedia.Twitter}>
@@ -95,7 +122,7 @@ export default function FooterClient () {
                       </a>
                       <a target='_blank' rel="noopener noreferrer" href={socialMedia.Youtube}>
                           <FontAwesomeIcon icon={faYoutube}/>
-                      </a>
+                      </a> */}
                   </div>
 
               </div>
