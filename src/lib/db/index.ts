@@ -2,7 +2,6 @@
 import { PrismaClient } from '@prisma/client'
 import { CONFIG } from '../config/indev'
 
-
 interface CostumeNodeJsGlobal extends Global {
   prisma: PrismaClient
 }

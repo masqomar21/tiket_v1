@@ -1,15 +1,20 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-misused-promises */
 'use client'
 import { faEye, faEyeSlash, faKey, faSpinner, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 export default function RegisterForm () {
   const [isShow, setIsShow] = useState(false)
   const [data, setData] = useState({ email: '', password: '', confirmPassword: '' })
   const [loading, setLoading] = useState(false)
   const [error, setErrors] = useState<Record<string, string>>({})
+  const [response, setResponse] = useState<Record<string, string> | null>(null)
+
+  const router = useRouter()
 
   const handleChangeData = (e: { target: { name: any, value: any } }) => {
     setData({
@@ -47,25 +52,32 @@ export default function RegisterForm () {
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
 
+    setResponse(null)
     setLoading(true)
 
+    const newResponse: Record<string, string> = {}
+
     if (validateForm()) {
-      // Perform login logic here, e.g., send a request to an authentication API
       const registerData = {
         email: data.email,
         password: data.password
       }
-      console.log('Login submitted with:', registerData)
-    } else {
-      console.log('Form validation failed', error.email, data)
+      try {
+        const result = await axios.post('/api/auth/register', registerData)
+
+        const responseData = result.data
+        newResponse.success = responseData.message
+
+        router.push('/login?callbackUrl=/')
+      } catch (error: any) {
+        newResponse.error = error.response.data.message
+      }
     }
-    setTimeout(() => {
-      setLoading(false)
-    }, 2000)
-    // setLoading(false)
+    setResponse(newResponse)
+    setLoading(false)
   }
   const handleShowPassword = () => {
     isShow ? setIsShow(false) : setIsShow(true)
@@ -76,7 +88,8 @@ export default function RegisterForm () {
               <span className='block text-xl md:text-3xl '>Welcome to TiketPapa</span>
               <span className='block text-xs md:text-lg'>Register to continue</span>
           </div>
-          <form onSubmit={handleSubmit} className="block pt-7">
+          <form onSubmit={ handleSubmit} className="block pt-7">
+              {response?.error !== undefined && <p className=' p-3 border-red-600 border rounded-lg bg-red-100 text-red-700'>{response?.error}</p>}
               <div className="py-2 md:py-3">
                   <label htmlFor="email" className="font-bold">Email</label>
                   <div className="flex gap-4 items-center pt-2">
