@@ -10,7 +10,7 @@ export default function NavClient () {
   const [mobileActive, setMobileActive] = useState(false)
   const [isTypeActive, setIsTypeActive] = useState(false)
 
-  const logo = '/Statick/image/logo_tiket_papa.png'
+  const logo = '/Static/image/logo_tiket_papa.png'
 
   const handleNavigation = () => {
     mobileActive ? setMobileActive(false) : setMobileActive(true)

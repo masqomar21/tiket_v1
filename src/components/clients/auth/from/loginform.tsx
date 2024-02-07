@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 'use client'
 
 import { faEye, faEyeSlash, faKey, faSpinner, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { signIn } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginForm () {
   const [isShow, setIsShow] = useState(false)
@@ -12,6 +15,12 @@ export default function LoginForm () {
   const [loading, setLoading] = useState(false)
 
   const [error, setErrors] = useState<Record<string, string>>({})
+  const [response, setResponse] = useState<Record<string, string>>({})
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const callbackUrl: string = searchParams.get('callbackUrl') ?? '/'
 
   useEffect(() => {
     // Check if navigator exists (to avoid potential server-side rendering issues)
@@ -45,14 +54,42 @@ export default function LoginForm () {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     setLoading(true)
     if (validateForm()) {
       const loginData = {
         email: data.email,
         password: data.password,
-        devieInfo
+        devieInfo: devieInfo?.userAgent ?? 'No device info available'
+      }
+
+      try {
+        const result = await signIn('credentials', {
+          redirect: false,
+          ...loginData,
+          callbackUrl
+        })
+
+        if ((result?.error) !== null) {
+          setLoading(false)
+          setData({
+            email: '',
+            password: ''
+          })
+          router.push(callbackUrl)
+        } else {
+          setLoading(false)
+          const newResponse: Record<string, string> = {
+            error: result.error ?? 'Something went wrong'
+          }
+          setResponse(newResponse)
+        }
+      } catch (error: any) {
+        const newResponse: Record<string, string> = {
+          error: error ?? 'Something went wrong'
+        }
+        setResponse(newResponse)
       }
       console.log('Form submitted', loginData)
       setData({
@@ -62,9 +99,11 @@ export default function LoginForm () {
     } else {
       console.log('Form validation failed', error.email, data)
     }
-    setTimeout(() => {
-      setLoading(false)
-    }, 2000)
+
+    console.log(response.error)
+    // setTimeout(() => {
+    //   setLoading(false)
+    // }, 2000)
     // setLoading(false)
   }
 

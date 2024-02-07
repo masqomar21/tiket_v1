@@ -31,7 +31,7 @@ export default function FooterClient () {
       link: 'https://youtube.com'
     }
   ]
-  const logo = '/Statick/image/logo_tiket_papa.png'
+  const logo = '/Static/image/logo_tiket_papa.png'
   return (
       <>
           <div className='mt-10 mb-5  border-t-2'></div>
