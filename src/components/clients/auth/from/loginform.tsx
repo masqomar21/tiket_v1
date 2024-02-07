@@ -1,24 +1,44 @@
 'use client'
 
-import { faEye, faEyeSlash, faKey, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faEyeSlash, faKey, faSpinner, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function LoginForm () {
   const [isShow, setIsShow] = useState(false)
-  const [email, setEmial] = useState('')
-  const [password, setPassword] = useState('')
+  const [data, setData] = useState({ email: '', password: '' })
+  const [devieInfo, setDeviceInfo] = useState<{ userAgent: string, platform: string } | null>(null)
+  const [loading, setLoading] = useState(false)
+
   const [error, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    // Check if navigator exists (to avoid potential server-side rendering issues)
+    if (typeof window !== 'undefined') {
+      // Access device information from the navigator object
+      const { userAgent, platform } = window.navigator
+      setDeviceInfo({ userAgent, platform })
+    }
+  }, [])
+
+  const handleChangeData = (e: { target: { name: any, value: any } }) => {
+    setData({
+      ...data,
+      [e.target.name]: e.target.value
+    })
+
+    console.log(data)
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (email === '') {
+    if (data.email === '') {
       newErrors.email = 'Email is required'
     }
 
-    if (password === '') {
+    if (data.password === '') {
       newErrors.password = 'Password is required'
     }
     setErrors(newErrors)
@@ -27,12 +47,25 @@ export default function LoginForm () {
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
+    setLoading(true)
     if (validateForm()) {
-      console.log('Form submitted', { email, password })
-      setPassword('')
+      const loginData = {
+        email: data.email,
+        password: data.password,
+        devieInfo
+      }
+      console.log('Form submitted', loginData)
+      setData({
+        ...data,
+        password: ''
+      })
     } else {
-      console.log('Form validation failed', error.email, ({ email, password }))
+      console.log('Form validation failed', error.email, data)
     }
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000)
+    // setLoading(false)
   }
 
   const handleShowPassword = () => {
@@ -56,7 +89,7 @@ export default function LoginForm () {
                   <label htmlFor="email" className="font-bold text-sm md:text-base">Email address</label>
                   <div className="flex gap-4 items-center pt-2">
                       <FontAwesomeIcon icon={faUser} />
-                      <input type="text" id="email" name='email' className={` ${(error.email !== undefined) ? 'border-red-500' : 'border-gray-200'} block w-full p-2 rounded-lg border  focus:outline-none focus:ring focus:ring-main-color `} placeholder="Your email address" value={email} onChange={(e) => { setEmial(e.target.value) }}/>
+                      <input type="text" id="email" name='email' className={` ${(error.email !== undefined) ? 'border-red-500' : 'border-gray-200'} block w-full p-2 rounded-lg border  focus:outline-none focus:ring focus:ring-main-color `} placeholder="Your email address" value={data.email} onChange={handleChangeData}/>
                   </div>
                   {(error.email !== '') && <p className='text-red-500 ps-10'>{error.email}</p>}
               </div>
@@ -64,7 +97,7 @@ export default function LoginForm () {
                   <label htmlFor="password" className="font-bold text-sm md:text-base">Password</label>
                   <div className="flex gap-4 items-center pt-2">
                       <FontAwesomeIcon icon={faKey} />
-                      <input type={isShow ? 'text' : 'password'} id="password" name='password' className={`${(error.password !== undefined) ? 'border-red-500' : 'border-gray-200'} block w-full p-2 rounded-lg border  focus:outline-none focus:ring focus:ring-main-color` } placeholder="Your Password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
+                      <input type={isShow ? 'text' : 'password'} id="password" name='password' className={`${(error.password !== undefined) ? 'border-red-500' : 'border-gray-200'} block w-full p-2 rounded-lg border  focus:outline-none focus:ring focus:ring-main-color` } placeholder="Your Password" value={data.password} onChange={handleChangeData} />
                   </div>
                   {(error.password !== '') && <p className='text-red-500 ps-10'>{error.password}</p>}
               </div>
@@ -83,7 +116,7 @@ export default function LoginForm () {
 
               <div className="w-fit mx-auto pt-6">
                   <button type='submit' className='bg-main-color hover:bg-cyan-700 py-btn-padding px-5 rounded-xl text-white hover:text-gray-400 shadow-md'>
-                      Log In
+                      {loading ? <><FontAwesomeIcon icon={faSpinner} className='animate-spin' /> loading...</> : 'Login'}
                   </button>
               </div>
           </form>
